@@ -183,7 +183,8 @@ def respond(request, dispatcher):
 
     # set up Session cache
     session = request.getSession()
-    req.cache = ISessionCache(session)
+    #req.cache = ISessionCache(session)
+    req.cache = session.cache
 
     # get the domain and port
     req._v_domain = req.get_host().split(":")[0]  # excludes port

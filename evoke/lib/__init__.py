@@ -7,6 +7,7 @@ evoke library type interface
 
 #make everything visible as evoke.lib.types
 from .INT import INT, SMALLINT, TINYINT
+from .DOUBLE import DOUBLE, HUGEDECIMAL
 from .FLOAT import FLOAT
 from .STR import TAG, STR, CHAR
 from .DATE import DATE
