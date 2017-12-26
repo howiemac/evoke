@@ -5,6 +5,7 @@ import sys
 import time
 from copy import copy
 from urllib.parse import quote
+from munch import Munch, DefaultMunch
 
 try:
     import user_agents
@@ -39,9 +40,10 @@ registerAdapter(SessionCache, Session, ISessionCache)
 #print "registerAdapter"
 
 
-class Reqbase(dict):
+class Req(DefaultMunch):
     """ extend the dict object with our own extra methods
-  """
+    """
+    __default__ = ''
 
     def redirect(self, url, permanent=False, anchor=""):
         """Cause a redirection without raising an error 
@@ -115,28 +117,32 @@ class Reqbase(dict):
         "make this copyable by copy.py"
         return self.__class__(copy(dict(self)))
 
+    def __deepcopy__(self, memo):
+        "make this copyable by copy.py"
+        return self.copy()
 
-class Req(Reqbase):
-    """dict / object hybrid - CJH- stores form fields as a dictionary,
-  but allows them to be set and got as req properties.
-  WEAKNESS: if a form field uses a string method name as a key,
-  then that field can only be set and got using req.[key] syntax
-  ADVANTAGE:  allows backward compatibility, and the direct use of
-  dictionary methods and operands
-  """
 
-    def __getattribute__(self, k):
-        if hasattr(Reqbase, k):
-            return dict.__getattribute__(self, k)
-        else:  # do an implicit get
-            # TODO - should this raise an error for an unknown key?
-            return self.get(k, "")
-
-    def __setattr__(self, k, v):
-        if hasattr(Reqbase, k):
-            dict.__setattr__(self, k, v)
-        else:
-            self[k] = v
+#class OLDReq(Reqbase):
+#    """dict / object hybrid - CJH- stores form fields as a dictionary,
+#  but allows them to be set and got as req properties.
+#  WEAKNESS: if a form field uses a string method name as a key,
+#  then that field can only be set and got using req.[key] syntax
+#  ADVANTAGE:  allows backward compatibility, and the direct use of
+#  dictionary methods and operands
+#  """
+#
+#    def __getattribute__(self, k):
+#        if hasattr(Reqbase, k):
+#            return dict.__getattribute__(self, k)
+#        else:  # do an implicit get
+#            # TODO - should this raise an error for an unknown key?
+#            return self.get(k, "")
+#
+#    def __setattr__(self, k, v):
+#        if hasattr(Reqbase, k):
+#            dict.__setattr__(self, k, v)
+#        else:
+#            self[k] = v
 
 
 def debyte_dict(d, exceptions=('filedata', )):

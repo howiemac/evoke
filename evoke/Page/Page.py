@@ -27,8 +27,10 @@ except ImportError:
 # local imports
 from .File import File
 from .Image import Image
-from evoke.render import html
 from evoke.lib import *
+from nevo import NevoDecorator
+
+html = NevoDecorator.make('Page')
 
 
 class Page(Image, File):

@@ -22,7 +22,7 @@ class dispatcherCode(Parser):
         if type(res) == bytes:
             return res
         else:
-            return bytes(bytearray(res, 'utf8'))
+            return bytes(bytearray(str(res), 'utf8'))
 
     def _request(self, uri, req):
         ""
