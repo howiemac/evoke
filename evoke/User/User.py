@@ -28,8 +28,9 @@ import hashlib
 from base64 import urlsafe_b64encode as encode, urlsafe_b64decode as decode
 
 from evoke import lib
-from evoke.render import html
+from nevo import NevoDecorator
 
+html = NevoDecorator.make('User')
 
 class User:
     def permitted(self, user):

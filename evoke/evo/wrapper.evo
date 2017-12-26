@@ -5,4 +5,4 @@ html: lang="en"
   body: id=req.pageid or 'standardbody'
     div: cls="container"
       wrapper_alert.evo
-      content.here
+      __content__()
