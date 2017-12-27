@@ -6,8 +6,8 @@ schema syntax:
 class Widget:
   table='widgets'             #optional table name - will default to the class name (lowercased). Can provide a database override eg 'mydb.widgets'
   name=TAG                    #first attribute / column name....
-  number=INT,100,KEY          #optional default . KEY will generate an index on this field           
-  date=DATE,KEY,'20000101'    #default and KEY can be swapped, but TYPE must come first        
+  number=INT,100,KEY          #optional default . KEY will generate an index on this field
+  date=DATE,KEY,'20000101'    #default and KEY can be swapped, but TYPE must come first
   comment=STR,KEY             #KEY on a STR or TEXT field will generate a text index (ie FULLTEXT)
   ... etc                     #as many as you like
   insert=[dict(name='whatever',number=123),dict(name="something",number=456)] #seed data (columns) for the table
@@ -16,7 +16,7 @@ The above definition implies (and requires) that there is a class called Widget 
 
 A schema class can be subclassed, eg to give a different class which uses the same database table (or indeed a different table with the same schema, or a modified version of it)
 
-Note that column names can even be mysqsl keywords, as they are always `quoted`. 
+Note that column names can even be mysqsl keywords, as they are always `quoted`.
 
 IHM April 2007
 
@@ -51,7 +51,7 @@ class TEXTKEY(object):
 class Schema(object):
     """
   each instance requires:
-  
+
   table='tablename'
   `fieldname`=TYPE,default,KEY' # for each field, where TYPE in TYPES , KEY and default are optional, and can be swapped in  order
   """
@@ -64,7 +64,7 @@ class Schema(object):
     @classmethod
     def build_database(self, database):
         " create or append defined table in MySQL db"
-        #    self.table=getattr(self,'table',self.__name__.lower())
+        self.table=getattr(self,'table',self.__name__.lower())
         if self.table.find(".") >= 0:
             self.database, self.table = self.table.split(
                 ".", 1)  #allow for database override in table spec
@@ -89,6 +89,7 @@ class Schema(object):
             elif (("%s.%s") % (database, self.table)) not in self._v_built:
                 self.create_table(database)
             self._v_built.append("%s.%s" % (database, self.table))
+
 
 #      print '>>>>>>>>>>>>v_built=',database,self._v_built
 
@@ -128,17 +129,17 @@ class Schema(object):
     def update_table(self, database):
         """
     FOR SAFETY REASONS WE WON'T DELETE OR MODIFY ANY DATA, except keys
-    - add any new columns and keys to the table 
+    - add any new columns and keys to the table
     - generate a warning if there are any database columns no longer defined in the schema
-    - throw an error if there is a mismatch between any database column type and the schema definition 
+    - throw an error if there is a mismatch between any database column type and the schema definition
     NOTE - self.insert changes are IGNORED
-         - changes to defaults are ignored (O/S - fix this)  
+         - changes to defaults are ignored (O/S - fix this)
          - changes and aditions to TEXTKEY multikeys are IGNORED  (O/S - fix this)
          - dropping of TEXTKEYs doesn't work, as key names are not correct (should use keys from self._v_multikey)  (O/S - fix this)
-         - ***** should use "select KEYS from <table>" to get the key data to fix the above. This assumes we have mysql v4.0.2 or better. 
+         - ***** should use "select KEYS from <table>" to get the key data to fix the above. This assumes we have mysql v4.0.2 or better.
            i.e. Key_name, Column_name, and Index_type (BTREE or FULLTEXT):
-           keys= Index_type!='FULLTEXT' 
-           textkeys= Key_name==Column_name and Index_type=='FULLTEXT' 
+           keys= Index_type!='FULLTEXT'
+           textkeys= Key_name==Column_name and Index_type=='FULLTEXT'
            multikeys= Key_name!=Column_name and Index_type=='FULLTEXT'
     """
         columns = self._v_columns
@@ -198,8 +199,8 @@ class Schema(object):
     @classmethod
     def create_table(self, database):
         """
-    generate SQL code to create the table for this schema, and seed it with initial row inserts 
-    
+    generate SQL code to create the table for this schema, and seed it with initial row inserts
+
     will simply ignore any invalidly-specified attributes
     """
 
@@ -217,9 +218,8 @@ class Schema(object):
             'table':
             self.tablesql,
             'columns':
-            ",\n".join(("`%s` %s default %s" %
-                        (k, v[0]._v_mysql_type,
-                         v[1] is None and "NULL" or ('"%s"' % v[1])))
+            ",\n".join(("`%s` %s default %s" % (k, v[
+                0]._v_mysql_type, v[1] is None and "NULL" or ('"%s"' % v[1])))
                        for (k, v) in list(columns.items())),
             'keys':
             ",\n".join(
@@ -227,7 +227,7 @@ class Schema(object):
                 [("FULLTEXT (`%s`)" % k) for k in textkeys] +
                 [("FULLTEXT %s %s" % (k, quoted(v))) for (k, v) in multikeys])
         }
-        sql = "CREATE TABLE %(table)s(\nuid int(11) NOT NULL auto_increment,\n%(columns)s,\n%(keys)s\n) ENGINE=MyISAM CHARSET=utf8;" % data
+        sql = "CREATE TABLE %(table)s(\nuid int(11) NOT NULL auto_increment,\n%(columns)s,\n%(keys)s\n) ENGINE=InnoDB CHARSET=utf8;" % data
         if hasattr(self, 'insert'):
             if isinstance(self.insert, type({})):  #allow for single item
                 self.insert = [self.insert]  #convert to list
