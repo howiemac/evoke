@@ -10,7 +10,7 @@ div: id="content", cls="%s_content" % self.kind
     input: id="import_file",size='40px', type="file", name="filedata"
     input: type="hidden", name="filename", value=""
   br:
-  buttonhot:'import', onclick="javascript:form.filename.value=form.filedata.value;"
+  button:'import', onclick="javascript:form.filename.value=form.filedata.value;"
  #/form
  form: action=self.url()
-   buttoncool:'skip'
+   button:'skip'

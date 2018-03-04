@@ -18,5 +18,5 @@ from .BLOB import BLOB
 from .library import sql_list, safeint, httpDate, page, prev, next, url_safe, elapsed, delf
 from .email import email
 from .error import Error
-from .permit import Permit
+from .permit import Permit, Condition
 from .bug import send_error

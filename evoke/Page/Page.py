@@ -11,7 +11,7 @@ written by Ian Howie Mackenzie 2006 onwards
 
 # import os
 from copy import copy
-from os.path import lexists
+from os.path import lexists, dirname
 from datetime import timedelta, datetime
 import pickle as pickle
 from io import StringIO
@@ -30,7 +30,9 @@ from .Image import Image
 from evoke.lib import *
 from nevo import NevoDecorator
 
-html = NevoDecorator.make('Page')
+import evoke
+
+html = NevoDecorator.make('Page', ['.', dirname(evoke.__file__), './User', ])
 
 
 class Page(Image, File):

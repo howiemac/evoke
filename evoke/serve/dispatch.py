@@ -185,7 +185,11 @@ class dispatcherCode(Parser):
             except Exception as e:  # describe an application error message
                 print('============= TRACEBACK ================')
                 sys.stderr.write(DATE().time() + '\n')
-                sys.stderr.write(url + b'\n')
+                print("ERRB", url, type(url))
+                try:
+                    sys.stderr.write(url + '\n')
+                except:    
+                    sys.stderr.write(url + b'\n')
                 traceback.print_exc(file=sys.stderr)
                 sys.stderr.write('%s\n' % e)
                 print('============= END ================')

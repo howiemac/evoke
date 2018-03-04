@@ -25,12 +25,13 @@ import inspect
 import crypt
 import uuid
 import hashlib
+from os.path import dirname
 from base64 import urlsafe_b64encode as encode, urlsafe_b64decode as decode
 
 from evoke import lib
 from nevo import NevoDecorator
-
-html = NevoDecorator.make('User')
+import evoke
+html = NevoDecorator.make('User', ['.', dirname(evoke.__file__)])
 
 class User:
     def permitted(self, user):
