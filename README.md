@@ -22,7 +22,7 @@ For the historic stable python 2 version see [evoke 4](https://github.com/howiem
 - linux (should work on BSD and MacOS also - but not yet tested)
 - mysql
 
-## installation
+## installation (version 6)
 
     pip3 install evoke
 
