@@ -119,9 +119,9 @@ class Evo(object):
                 except SyntaxError as inst:
                     p = inst.offset
                     t = inst.text
-                    raise EvoSyntaxError("char %s" % p, "evo pycode for %s" % self.filename ,
-                                         t[max(0, p - 40):p],
-                                         t[p:min(p + 40, len(t) - 1)])
+                    raise EvoSyntaxError(
+                        "char %s" % p, "evo pycode for %s" % self.filename,
+                        t[max(0, p - 40):p], t[p:min(p + 40, len(t) - 1)])
         # sort out the wrapper
         if wrapper is not None:
             wrapper = wrapper or req.get('wrapper', 'wrapper.evo')
@@ -353,11 +353,18 @@ class basetag(object):
     }
 
     def out(self, indent=0):
-        attributes = "".join(
-            [(' %s="%s"' % (self.keymap.get(k, k),
-                            str(v).replace('"', "&quot;")))
-             for (k, v) in list(self.attributes.items())
-             if v or (k not in ('checked', 'selected', 'disabled'))])
+        def subst(k):
+            "substitute attribute name"
+            if k in self.keymap:
+                return self.keymap[k]
+            # convert _ to -
+            return k.replace('_', '-')
+
+        attributes = "".join([
+            (' %s="%s"' % (subst(k), str(v).replace('"', "&quot;")))
+            for (k, v) in self.attributes.items()
+            if v or (k not in ('checked', 'selected', 'disabled', 'itemscope'))
+        ])
         return self.template % dict(
             indent=" " * indent,
             attributes=attributes,
@@ -426,7 +433,32 @@ style = tag('style')
 font = tag('font')
 strong = tag('strong')
 
+section = tag("section")
+header = tag('header')
+footer = tag('footer')
+article = tag('article')
+
+# Bootstrap
+css = tag('link', rel="stylesheet", type="text/css")
+row = tag('div', cls='row')
+container = tag('div', cls="container")
+fluid = tag('div', cls="container-fluid")
+col1 = tag('div', cls="col-md-1")
+col2 = tag('div', cls="col-md-2")
+col3 = tag('div', cls="col-md-3")
+col4 = tag('div', cls="col-md-4")
+col5 = tag('div', cls="col-md-5")
+col6 = tag('div', cls="col-md-6")
+col7 = tag('div', cls="col-md-7")
+col8 = tag('div', cls="col-md-8")
+col9 = tag('div', cls="col-md-9")
+col10 = tag('div', cls="col-md-10")
+col11 = tag('div', cls="col-md-11")
+col12 = tag('div', cls="col-md-12")
+formgroup = tag('div', cls="form-group")
+
 ## logic
+
 
 def let(namespace, **args):
     "allows local variable assignment, and macro blocks"
@@ -447,4 +479,3 @@ def content(ob, req):
 
 
 namespace = locals()
-

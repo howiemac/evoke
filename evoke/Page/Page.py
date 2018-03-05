@@ -11,7 +11,7 @@ written by Ian Howie Mackenzie 2006 onwards
 
 # import os
 from copy import copy
-from os.path import lexists
+from os.path import lexists, dirname
 from datetime import timedelta, datetime
 import pickle as pickle
 from io import StringIO
@@ -27,8 +27,12 @@ except ImportError:
 # local imports
 from .File import File
 from .Image import Image
-from evoke.render import html
 from evoke.lib import *
+from nevo import NevoDecorator
+
+import evoke
+
+html = NevoDecorator.make('Page', ['.', dirname(evoke.__file__), './User', ])
 
 
 class Page(Image, File):
@@ -1415,7 +1419,7 @@ class Page(Image, File):
 
     def cancel_move(self, req):
         "clear the session cache move uid"
-        req.cache.page_move = None
+        req.cache['page_move'] = None
         message = 'page move cancelled'
         return self.view(req)
 
@@ -1431,7 +1435,7 @@ class Page(Image, File):
             message = '"%s" %s here' % (
                 move.get_name(), (req._copying and 'copied') or
                 (req._import and 'imported') or 'moved')
-            req.cache.page_move = None  # clear the session cache move uid
+            req.cache['page_move'] = None  # clear the session cache move uid
         else:
             req.warning = 'system was reset - page move canceled'
             return self.view(req)
@@ -1440,13 +1444,13 @@ class Page(Image, File):
     here.permit = 'create page'
 
     def set_move(self, req):
-        "stores self.uid in session cache (req.cache.page_move)"
-        req.cache.page_move = self.uid
+        "stores self.uid in session cache (req.cache['page_move'])"
+        req.cache['page_move'] = self.uid
 
     @classmethod
     def get_move(cls, req):
-        "gets move uid from session cache (req.cache.page_move)"
-        move = getattr(req.cache, 'page_move', None)
+        "gets move uid from session cache (req.cache['page_move'])"
+        move = req.cache.get('page_move', None)
         #    print ">>>>>>>>>> move=",move
         if move:
             if cls.exists(move):

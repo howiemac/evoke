@@ -40,6 +40,8 @@ class EvokeResource(Resource):
 
     # TODO: distinguish POST and GET
     render_POST = render_GET
+    render_PATCH = render_GET
+    render_DELETE = render_GET
 
     def render_deferred(self, result, request):
         "handle the final result of a deferred chain"
@@ -50,6 +52,43 @@ class EvokeResource(Resource):
 # override Session to give us a longer timeout
 class LongSession(Session):
     sessionTimeout = 60 * 60  # in seconds
+
+
+class EvokeRequest(server.Request):
+    """Request modified to use cookie id rather than uid"""
+
+    def getSession(self, sessionInterface=None):
+        # Session management
+        if not getattr(self, '_v_session', None):
+            cookiename = b"_".join([b'EVOKE_TWISTED_SESSION'] + self.sitepath)
+            sessionCookie = self.getCookie(cookiename)
+            if sessionCookie:
+                try:
+                    self._v_session = self.site.getSession(sessionCookie)
+                except KeyError:
+                    pass
+            # if it still hasn't been set, fix it up.
+            if not getattr(self, '_v_session', None):
+                self._v_session = self.site.makeSession()
+                self.addCookie(cookiename, self._v_session.id, path=b'/')
+        self._v_session.touch()
+        if sessionInterface:
+            return self._v_session.getComponent(sessionInterface)
+        return self._v_session
+
+
+class EvokeSite(server.Site):
+    """A site which uses a persistent Session"""
+
+    def __init__(self, resource, Session, requestFactory=None, *args,
+                 **kwargs):
+        """"""
+        server.Site.__init__(self, resource, requestFactory, *args, **kwargs)
+        self.sessionFactory = Session.Factory
+        Session._site = self
+
+        self.sessions = Session.get_sessions()
+
 
 application = ""
 
@@ -62,10 +101,12 @@ def start(application, apps=[]):
     # serve gzipped content if we can..
     if has_gzip:
         resource = EncodingResourceWrapper(resource, [GzipEncoderFactory()])
+    # this assumes that this is a single apps
+    # multiserve having been deprecated
+    Session = list(dispatcher.apps.values())[0]['Session']
     # set up our server
-    fileServer = server.Site(resource)
-    # use long session
-    fileServer.sessionFactory = LongSession
+    fileServer = EvokeSite(resource, Session, requestFactory=EvokeRequest)
+
     # start the service
     port = int(list(dispatcher.apps.values())[0]['Config'].port)
     evokeService = internet.TCPServer(port, fileServer)
@@ -74,8 +115,8 @@ def start(application, apps=[]):
     # logging
     # create log dir if necessary
     try:
-        os.mkdir('logs')
+        os.mkdir('../logs')
     except OSError:
         pass
-    logfile = DailyLogFile("twistd.log", "logs")
+    logfile = DailyLogFile("twistd.log", "../logs")
     application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
