@@ -1,6 +1,3 @@
-#if self.text: 
 div:cls='summarytext'
   # text summary #
   Page_view_text_summary.evo
-  if (self.text.has_more or self.has_children()):
-   a:'more...', cls='more', href=self.url('context')

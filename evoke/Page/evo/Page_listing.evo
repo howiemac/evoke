@@ -1,25 +1,17 @@
 Page_listing_header.evo
 div: id='content'
   for item in req.pages:
-    div:cls="summary"
-      # image
-      item.Page_summaryimage.evo
-      # title
-      a: href=item.url('context')
-        span:item.get_name(), cls='big' 
-        span:item.status(full=True), cls='bright wee' 
-      # tagline
-      div:cls='tiny light' 
-        if self.Config.attribution:
-          if (item.kind in self.postkinds):
-            span:"%s by %s" % (item.kind,self.get(2).get_name())
-          else:
-            span:item.kind
-        if self.get_pref('show_time'):  
-          span: item.when.nice(long=True)
-        if (item.get_pob().kind=='category') and (item.stage=='posted'):
-          'in' 
-          a:item.get_pob().get_name(),href=item.get_pob().url()
-      # text
-      item.Page_summarytext.evo
+    div:cls="summary row"
+      div:cls='col-10'
+        # title
+        a: href=item.url('context')
+          span:item.get_name(), cls='big' 
+          span:item.status(full=True), cls='bright wee' 
+        # tagline
+        span:item.tagline(showtime=self.get_pref('show_time')),cls='light wee'
+        # text
+        item.Page_summarytext.evo
+      div: cls='col-2'
+        # image
+        item.Page_summaryimage.evo
 Page_listing_footer.evo    

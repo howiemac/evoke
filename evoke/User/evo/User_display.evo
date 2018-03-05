@@ -10,7 +10,7 @@ div: id="user"
   else:
 #    mode=getattr(req.user,"mode",False)
     span:cls="username"
-      img:src="/site/images/system/user.gif"
+      img:src="/site/evoke/images/user.gif"
       a:req.user.id,href=req.user.url(),title='click here to alter your settings'
 #      a:mode and "&otimes;" or "&oplus;", href=req.user.url("toggle_mode?return_to=%s" % self.url(req._v_method)), title="%s view" % (mode and "guest" or "admin",)
       span:cls="logout"

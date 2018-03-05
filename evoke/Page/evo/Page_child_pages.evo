@@ -2,7 +2,7 @@
 Page_child_add.evo
 for item in req.pages:
   a:name=item.uid
-  div: cls= "summary articles row"
+  div: cls= "summary row"
     # article summary
     div:cls='col-10'
       # title

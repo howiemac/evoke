@@ -27,8 +27,9 @@ except ImportError:
 # local imports
 from .File import File
 from .Image import Image
+
 from evoke.lib import *
-from nevo import NevoDecorator
+from evoke.nevo import NevoDecorator
 
 import evoke
 

@@ -16,7 +16,7 @@ div: id="content", cls="%s_content" % self.kind.replace(" ","_")
             input: id="texttitle",  cls="form-control", name='name', value=self.name, onChange="confirmExit = true;", onKeyPress="confirmExit = true;"
           # edit extras  #####################
           self.Page_edit_extras.evo
-          Page_dstore_edit_fields.evo
+#          Page_dstore_edit_fields.evo
           # edit text #######################
           div: cls="form-group"
             label: "content", for_id="text"

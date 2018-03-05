@@ -115,8 +115,10 @@ def start(application, apps=[]):
     # logging
     # create log dir if necessary
     try:
-        os.mkdir('../logs')
+#        os.mkdir('../logs')
+        os.mkdir('logs')
     except OSError:
         pass
-    logfile = DailyLogFile("twistd.log", "../logs")
+#    logfile = DailyLogFile("twistd.log", "../logs")
+    logfile = DailyLogFile("twistd.log", "logs")
     application.setComponent(ILogObserver, FileLogObserver(logfile).emit)

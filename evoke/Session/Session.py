@@ -7,7 +7,7 @@ from twisted.web.server import Session as TwistedSession
 from twisted.python import components
 
 logger = logging.getLogger('session')
-handler = logging.FileHandler('../logs/session.log')
+handler = logging.FileHandler('../evoke/logs/session.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
