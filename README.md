@@ -1,6 +1,4 @@
-# evoke 5
-
-This is the python 3 version of EVOKE, currently in _active_ development.
+# evoke
 
 EVOKE is a simple and powerful python web framework with pythonic "evo" templating.
 
@@ -9,6 +7,14 @@ The evoke module allows you to create evoke apps, which are twisted web-server-a
 - use twisted webserver (optionally proxied via apache) to serve the data
 - use mysql for data storage, and present the data to you as python objects
 - produce HTML output via evoke's own "evo" templating, by default using bootstrap 4 for CSS 
+
+## versions
+
+This is version 7 of EVOKE: the experimental development version (for python 3).
+
+For the current stable python 3 version, see [evoke 6](https://github.com/howiemac/evoke6).
+
+For the historic stable python 2 version see [evoke 4](https://github.com/howiemac/evoke4).
 
 ## requirements
 
