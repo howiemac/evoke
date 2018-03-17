@@ -1,0 +1,8 @@
+# standard Evoke /base/evo wrapper
+"<!DOCTYPE html>"
+html: lang="en" 
+  wrapper_head.evo
+  body: id='standardbody'
+    div: cls="container"
+      #wrapper_error.evo
+      #__content__()

@@ -1,0 +1,8 @@
+try:
+except: "no"
+else: "else"
+finally: "finally"
+if 0:
+  "no"
+else:
+  "not in your try structure"

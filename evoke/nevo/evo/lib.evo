@@ -1,0 +1,5 @@
+def compound: myclass="someclass"
+  div: class=myclass
+    __content__
+
+

@@ -1,0 +1,4 @@
+for i in []:
+  "not expected"
+else:
+  p: "expected"

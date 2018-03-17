@@ -1,0 +1,8 @@
+self = "I am the outer self"
+context = "I am the inner self"
+
+p: self
+
+context.IncludeWithContextInner.evo
+
+p:self

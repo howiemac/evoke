@@ -1,0 +1,16 @@
+try:
+  try:
+    try:
+      "one"
+      try: 1/0
+      except ValueError:
+        "no"
+      finally: "two"
+    except ValueError:
+      "no"
+    finally: "three"
+  finally:
+    "four"
+except: "five"
+finally: "six"
+

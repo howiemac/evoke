@@ -1,0 +1,4 @@
+if True:
+  "yes"
+elif True:
+  "should not show"

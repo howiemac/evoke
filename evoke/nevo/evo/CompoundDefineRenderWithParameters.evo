@@ -1,0 +1,5 @@
+def compound: myclass="someclass"
+  div: class=myclass
+    __content__
+compound: "content"
+compound: "content", myclass="otherclass"

@@ -1,0 +1,6 @@
+if False:
+  "no"
+elif False:
+  "also no"
+else:
+  "yes"

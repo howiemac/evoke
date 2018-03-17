@@ -1,0 +1,9 @@
+# message, warning, or error display
+div: cls="row"
+  div: cls="col-md-12"
+    if req.get("message"):
+      div:req.message, id="message"
+    if req.get("warning"):
+      div:req.warning, id="warning"
+    if req.get("error"):
+      div:req.error, id="error"  

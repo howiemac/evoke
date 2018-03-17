@@ -1,0 +1,4 @@
+try:
+  try: 1/0
+  finally: "yes"
+except: ""

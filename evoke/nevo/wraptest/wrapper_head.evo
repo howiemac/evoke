@@ -1,0 +1,8 @@
+# standard wrapper head
+head:
+  # CSS and JS imports
+  wrapper_head_resources.evo  
+  #  hook for apps to add extra resources
+  wrapper_head_resources_hook.evo
+  # title and meta data
+  wrapper_head_meta.evo

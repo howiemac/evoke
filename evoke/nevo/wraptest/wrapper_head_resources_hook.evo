@@ -1,0 +1,10 @@
+# this template is a hook for apps to add additional resources
+
+# example:
+## WEB FONTS
+## body text
+#link: href='http://fonts.googleapis.com/css?family=Source+Sans+Pro', rel='stylesheet', type='text/css'
+## headings
+#link: href='http://fonts.googleapis.com/css?family=Kreon:700', rel='stylesheet', type='text/css'
+
+" "

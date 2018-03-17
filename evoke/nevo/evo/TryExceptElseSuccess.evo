@@ -1,0 +1,3 @@
+try: "yes"
+except: "no"
+else: "else"

@@ -1,0 +1,2 @@
+div:
+  __content__(locals())
