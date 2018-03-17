@@ -6,9 +6,7 @@ div: cls="row",
         # make bootstrap-compatible - our message is their success
         div:id=m, cls=f"alert alert-{m.replace('message','success')} alert-dismissible", role='alert'
           req[m]
-          # cannot use the bootstrap function to close popup, as it uses hyphenated attribute: data-dismiss="alert"
-#          button: "&times;", cls="close" data-dismiss="alert" aria-label="Close"
-#          button:"&times;", cls='close', onclick=f"document.getElementById('{m}').style.display='none';return;"
-          a:"&times;", href="#", onclick=f"document.getElementById('{m}').style.display='none';return;"
-#or (this also works)
+          button: "&times;", cls="close", data_dismiss="alert", aria_label="Close"
+#or (these also work)
+#          a:"&times;", href="#", onclick=f"document.getElementById('{m}').style.display='none';return;"
 #          a:"&times;", href="#", onclick=f"$('#{m}')[0].style.display='none';return;"
