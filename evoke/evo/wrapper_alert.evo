@@ -1,12 +1,9 @@
 # messages:  success, warning, or error display
 div: cls="row", 
   div: id='popup',cls="col-12 "
-    for m in ('message','info','success','warning','error'):
+    for m in ('message','info','success','warning','error','danger'):
       if req.get(m):
         # make bootstrap-compatible - our message is their success
-        div:id=m, cls=f"alert alert-{m.replace('message','success')} alert-dismissible", role='alert'
+        div:id=m, cls="alert alert-%s alert-dismissible" % m.replace('message','success').replace('error','danger'), role='alert'
           req[m]
           button: "&times;", cls="close", data_dismiss="alert", aria_label="Close"
-#or (these also work)
-#          a:"&times;", href="#", onclick=f"document.getElementById('{m}').style.display='none';return;"
-#          a:"&times;", href="#", onclick=f"$('#{m}')[0].style.display='none';return;"
