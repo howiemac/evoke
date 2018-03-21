@@ -1,0 +1,17 @@
+# displays user name, mode toggle, and logout link
+# BEWARE - "self" here may not be a user...
+div: id="user"
+  if req.user.is_guest():
+    span: cls='login'
+    if self.Config.registration_method!='admin':
+      a:'login',href=req.user.url('login?return_to=%s' % self.url()), title='log in'
+      'or'
+      a:"register", href=req.user.url("register"), title='register'
+  else:
+#    mode=getattr(req.user,"mode",False)
+    span:cls="username"
+      img:src="/site/images/system/user.gif"
+      a:req.user.id,href=req.user.url(),title='click here to alter your settings'
+#      a:mode and "&otimes;" or "&oplus;", href=req.user.url("toggle_mode?return_to=%s" % self.url(req._v_method)), title="%s view" % (mode and "guest" or "admin",)
+      span:cls="logout"
+        a:'logout',href=req.user.url('logout?return_to=%s' % self.url()), title='log out'
