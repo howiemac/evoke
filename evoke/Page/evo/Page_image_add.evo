@@ -4,17 +4,16 @@ div: id='content'
   image=self.get(req.edit) if req.edit else None
   if image:
     image.Page_image_edit.evo
-  div: cls='col-6'
-   form: action=self.url("add_image"), enctype="multipart/form-data" , id='uploadform', cls="form-horizontal", role="form"
+  form: action=self.url("add_image"), enctype="multipart/form-data" , id='uploadform', role="form"
     fieldset:
-      legend: 'ADD an image'
-      div: cls="form-group"
+      legend: 'add an image'
+      div: cls="form-group form-row"
         input: type="file" , name="filedata", accept="image/jpeg,image/png,image/gif", accesskey="B"
       button:'upload', onclick="javascript:form.filename.value=form.filedata.value;", accesskey="U", cls="btn btn-primary"
     input: type="hidden", name="filename", value=""
     if req.seq:
       input: type="hidden", name="seq", value=req.seq
-   #/form
-   Page_image_list.evo
+  #/form
+  Page_image_list.evo
 #div:
 #  a: "...back", href=self.url()

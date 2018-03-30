@@ -4,17 +4,16 @@ Page_header.evo
 #div: id=self.kind=='area' and self.name or "content", cls="%s_content" % self.kind
 div: id="content", cls="%s_content" % self.kind
   # preferences ############################## 
-  form: action=self.url("update_prefs"), cls="form-horizontal", id="prefs_form"
+  form: action=self.url("update_prefs"), id="prefs_form", role="form"
     fieldset:
       legend:'preferences'
       if self.kind in self.default_prefs:
        for name,defn in sorted(self.default_prefs[self.kind].items()):
-        div:cls="form-group"
-          label:defn[1]+':', for_id="prefs_%s" % name, cls="col-2"
-          div: cls="col-10"
+        div:cls="form-group form-row"
+          label:defn[1]+':', for_id="prefs_%s" % name, cls="col-md-3"
+          div: cls="col-md-5"
             if defn[2]=='checkbox':
-              div: cls="checkbox input-lg"
-                input: type='checkbox', id="prefs_%s" % name, name=name, checked='checked' if self.get_pref(name) else '',value='Y'
+              input: type='checkbox', id="prefs_%s" % name, name=name, checked='checked' if self.get_pref(name) else '',value='Y'
             elif isinstance(defn[2],tuple):
               select: cls="form-control", id="prefs_%s" % name, name=name, multiple="1"
                 for opt in defn[2]:

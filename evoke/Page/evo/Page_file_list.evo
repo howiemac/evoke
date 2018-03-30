@@ -1,6 +1,6 @@
 if self.get_files():
  div: id="file_list"
-  table:
+  table: cls="mt-5"
    tr:cls='head'
     th:'name'
     th:'caption &nbsp;'

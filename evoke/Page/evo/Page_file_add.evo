@@ -1,20 +1,20 @@
 div: id='contentheader'
   Page_header.evo
-div: id='content' 
+div: id='content'
   file=self.get(req.edit) if req.edit else None
   if file:
     file.Page_file_edit.evo
-  div: cls='col-6' 
-   form: action=self.url("add_file"), enctype="multipart/form-data" , id='uploadform', cls="form-horizontal", role="form"
+  form: action=self.url("add_file"), enctype="multipart/form-data" , id='uploadform', role="form"
     fieldset:
       legend: 'add a file'
-      div: cls="form-group" 
+      div: cls="form-group form-row"
         input: type="file", name="filedata", accesskey="B"
       button:'upload', onclick="javascript:form.filename.value=form.filedata.value;", accesskey="U", cls="btn btn-primary"
+#     buttonhot:'upload', onclick="$('filename').val($('filedata'.val()))" DOESN'T WORK
     input: type="hidden", name="filename", value=""
     if req.seq:
       input: type="hidden", name="seq", value=req.seq
-   #/form
-   Page_file_list.evo
+  #/form
+  Page_file_list.evo
 #div:
 #  a: "...back", href=self.url()

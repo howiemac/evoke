@@ -1,6 +1,6 @@
 if self.get_images() and self.images:
- div: id="image_list col-6"
-  table:
+ div: id="image_list"
+  table: cls="mt-5"
    tr:cls='head'
     th:'image'
     th:'name'
