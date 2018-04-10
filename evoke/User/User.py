@@ -203,6 +203,7 @@ class User:
     @classmethod
     def validate_user(cls, req):
         "hook method to allow <app>.User subclass to override the default validation and permit setting"
+        # TODO REMOVE THIS BAD SPIKE
         req.user = cls.validated_user(req)
         req.user.get_permits()
 #    print "req.user set to: ",req.user

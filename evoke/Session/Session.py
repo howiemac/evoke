@@ -2,6 +2,7 @@
 """
 from datetime import datetime, timedelta
 import logging
+from uuid import uuid4
 
 from twisted.web.server import Session as TwistedSession
 from twisted.python import components
@@ -11,7 +12,7 @@ handler = logging.FileHandler('../logs/session.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 logger.debug('started')
 
@@ -22,8 +23,7 @@ class Session(object):
     @classmethod
     def fetch_user(self, req):
         "get or create session object by id, validate and return the related user"
-        logger.debug('fetch_user')
-
+        logger.debug('Session.fetch_user')
         guest = self.User.get(1)  # fetch_user('guest')
 
         # the user will either be identified by a pre-identified req.request.avatarId
@@ -32,33 +32,26 @@ class Session(object):
         nocred = False
         avatarId = getattr(req.request, 'avatarId',
                            None)  #req.request.avatarId
+        logger.debug('Session.fetch_user avatarId %s' % str(avatarId))
         if avatarId and avatarId != 'guest':
             user = self.User.fetch_user(
                 avatarId
             ) or guest  # fetch_user returns none if user not recognised
-            logger.debug("we have an avatar: ", avatarId, " maps to user ",
-                         user.id)
         elif '__user__' in req and '__pass__' in req:
             user = self.User.fetch_if_valid(
                 req['__user__'],
                 req['__pass__']) or guest  # returns guest if not valid
-            logger.debug("we have a login, __user__ ", req['__user__'],
-                         " maps to user ", user.id)
         else:
             user = guest
             nocred = True
-            logger.debug(
-                "no credentials - we assume guest unless the session tells us otherwise"
-            )
-            logger.debug("-->" + str(req.keys()))
 
-        id = req.request.getSession().id
+        id = str(req.request.getSession().id)
 
         # look for an existing session
         sessions = self.list(id=id, stage='')
+        logger.debug('Session.fetch_user existing sessions %d %s' % (len(sessions), id))
 
         if sessions:
-            logger.debug('found a session, %s' % id)
             session = sessions[0]
 
             # if the session is new and empty, populate it.
@@ -77,10 +70,7 @@ class Session(object):
             # if any of our checks fail expire the session
             # exclude brand new session records without ip
             if not all(criteria):
-                logger.debug('session expired %s %s %s' %
-                             (id, session.ip, self.get_forwarded(req)))
                 req.request.getSession().expire()
-                logger.debug("ip address didn't match.")
                 return guest
 
             # user identity:  if the session user is guest but another user has
@@ -92,15 +82,11 @@ class Session(object):
 
             if session.user == guest.uid and user.uid == guest.uid:
 
-                logger.debug("definitely a guest")
                 return guest
 
             # session has a user and no credentials have been offered
             # return the user specified in the session
             if session.user != guest.uid and nocred:
-                logger.debug(
-                    "no credentials provided but the session has a valid user %d"
-                    % session.user)
 
                 # mirror the session id
                 req.set_cookie('mirror', session.id, max_age=60, path='/')
@@ -109,13 +95,11 @@ class Session(object):
 
             # session user != guest and req.user differs: expire session, return guest
             if session.user != guest.uid and session.user != user.uid:
-                logger.debug("user doesn't match the session")
                 req.request.getSession().expire()
                 return guest
 
             # session.user is guest and req.user != guest: update.session user and return user
             if session.user == guest.uid and user.uid != guest.uid:
-                logger.debug("user matches the session")
                 session.user = user.uid
                 session.flush()
                 return user
@@ -124,9 +108,9 @@ class Session(object):
             # Since sessions are created earlier when the session
             # cookie has been set this section should never
             # be reached.
-            logger.debug("creating new session", id)
+            logger.debug('we should not be here')
             session = self.new()
-            session.id = id
+            session.id = id or uuid4().hex
             session.user = user.uid
             session.ip = req.request.getClientIP()
             session.forwarded = self.get_forwarded(req)
@@ -148,6 +132,10 @@ class Session(object):
     @classmethod
     def Factory(self, site, id, reactor=None):
         """initialise EvokeSession object"""
+        logger.debug('Session.Factory id: ' + str(id, 'utf8'))
+
+        id = str(id, 'utf8')
+
         if reactor is None:
             from twisted.internet import reactor
         self._reactor = reactor
@@ -155,10 +143,14 @@ class Session(object):
         ob = self.new()  # triggers get
         ob.site = site
         ob.id = id
+        ob.shadow_id = id
+        logger.debug('Session.Factory preflush: %d %s %s'  % (ob.uid, ob.id, ob.shadow_id))
         ob.flush()
         ob._reactor = reactor
         ob.cache = {}
         self.expireCallbacks = []
+        _ob = self.get(ob.uid)
+        logger.debug('Session.Factory end: %d %s %s'  % (_ob.uid, _ob.id, _ob.shadow_id))
         return ob
 
     @classmethod
@@ -166,7 +158,7 @@ class Session(object):
         """return list of valid sessions"""
         # clear old sessions
         env = dict(session=self.ns_table())
-        sql = 'delete from %(session)s where stage="expired"' % env
+        sql = 'delete from %(session)s where stage="expired" or id=""' % env
         self.list(sql=sql)
         session_data = self.list(stage='', asObjects=False)
         sessions = [self.get_session(i['uid']) for i in session_data]
@@ -174,7 +166,7 @@ class Session(object):
 
     @classmethod
     def get_session(self, uid, data={}, reactor=None):
-        """"""
+        """ This is only used by get_sessions above"""
         ob = self.get(uid, data)
         #components.Componentized.__init__(ob)
 
@@ -194,7 +186,8 @@ class Session(object):
 
     def expire(self):
         """"""
-        del self._site.sessions[self.id]
+        logger.debug("Session.expire %s %s" % (str(self.id), str(self._site.sessions)))
+        del self._site.sessions[bytes(self.id, 'utf8')]
         for c in self.expireCallbacks:
             c()
         self.expireCallbacks = []

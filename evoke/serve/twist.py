@@ -4,6 +4,7 @@ Twisted interface
 """
 
 import os
+from uuid import uuid4
 from twisted.application import internet
 from twisted.web import server
 from twisted.web.resource import Resource
@@ -12,6 +13,14 @@ from twisted.web.server import Session
 from twisted.web.server import NOT_DONE_YET
 from twisted.python.log import ILogObserver, FileLogObserver
 from twisted.python.logfile import DailyLogFile
+
+import logging
+logger = logging.getLogger('session')
+handler = logging.FileHandler('../logs/session.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 # try to import resources for gzipping (not available in older twisted versions
 try:
@@ -60,15 +69,20 @@ class EvokeRequest(server.Request):
     def getSession(self, sessionInterface=None):
         # Session management
         if not getattr(self, '_v_session', None):
+            logger.debug('_v_session does not exist')
             cookiename = b"_".join([b'EVOKE_TWISTED_SESSION'] + self.sitepath)
             sessionCookie = self.getCookie(cookiename)
+            logger.debug('sessionCookie ' + str(sessionCookie) + ' ' + str(type(sessionCookie)))
             if sessionCookie:
                 try:
                     self._v_session = self.site.getSession(sessionCookie)
+                    logger.debug('_v_session ' + str(self._v_session))
                 except KeyError:
+                    logger.debug("KEY ERROR SESSION COOKIE: %s" % (str(sessionCookie)))
                     pass
             # if it still hasn't been set, fix it up.
             if not getattr(self, '_v_session', None):
+                logger.debug('about to set _v_session')
                 self._v_session = self.site.makeSession()
                 self.addCookie(cookiename, self._v_session.id, path=b'/')
         self._v_session.touch()
@@ -84,11 +98,23 @@ class EvokeSite(server.Site):
                  **kwargs):
         """"""
         server.Site.__init__(self, resource, requestFactory, *args, **kwargs)
+        # THIS NEEDS TO BE THE EVOKE Session not the Twisted one
         self.sessionFactory = Session.Factory
         Session._site = self
-
         self.sessions = Session.get_sessions()
 
+    def makeSession(self):
+        """
+        Generate a new Session instance, and store it for future reference.
+        """
+        logger.debug('makeSession')
+        uid = self._mkuid()
+        logger.debug('makeSession uid ' + str(uid))
+        logger.debug('sessionFactory' + str(self.sessionFactory))
+        session = self.sessions[uid] = self.sessionFactory(self, uid)
+        logger.debug('makeSession %s %s' % (uid, session.id))
+        session.startCheckingExpiration()
+        return session
 
 application = ""
 
@@ -105,7 +131,9 @@ def start(application, apps=[]):
     # multiserve having been deprecated
     Session = list(dispatcher.apps.values())[0]['Session']
     # set up our server
+
     fileServer = EvokeSite(resource, Session, requestFactory=EvokeRequest)
+    #fileServer = server.Site(resource)
 
     # start the service
     port = int(list(dispatcher.apps.values())[0]['Config'].port)
