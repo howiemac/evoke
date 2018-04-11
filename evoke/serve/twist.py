@@ -69,20 +69,15 @@ class EvokeRequest(server.Request):
     def getSession(self, sessionInterface=None):
         # Session management
         if not getattr(self, '_v_session', None):
-            logger.debug('_v_session does not exist')
             cookiename = b"_".join([b'EVOKE_TWISTED_SESSION'] + self.sitepath)
             sessionCookie = self.getCookie(cookiename)
-            logger.debug('sessionCookie ' + str(sessionCookie) + ' ' + str(type(sessionCookie)))
             if sessionCookie:
                 try:
                     self._v_session = self.site.getSession(sessionCookie)
-                    logger.debug('_v_session ' + str(self._v_session))
                 except KeyError:
-                    logger.debug("KEY ERROR SESSION COOKIE: %s" % (str(sessionCookie)))
                     pass
             # if it still hasn't been set, fix it up.
             if not getattr(self, '_v_session', None):
-                logger.debug('about to set _v_session')
                 self._v_session = self.site.makeSession()
                 self.addCookie(cookiename, self._v_session.id, path=b'/')
         self._v_session.touch()
@@ -107,12 +102,8 @@ class EvokeSite(server.Site):
         """
         Generate a new Session instance, and store it for future reference.
         """
-        logger.debug('makeSession')
         uid = self._mkuid()
-        logger.debug('makeSession uid ' + str(uid))
-        logger.debug('sessionFactory' + str(self.sessionFactory))
         session = self.sessions[uid] = self.sessionFactory(self, uid)
-        logger.debug('makeSession %s %s' % (uid, session.id))
         session.startCheckingExpiration()
         return session
 

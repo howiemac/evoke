@@ -14,8 +14,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-logger.debug('started')
-
 
 class Session(object):
     ""
@@ -23,7 +21,6 @@ class Session(object):
     @classmethod
     def fetch_user(self, req):
         "get or create session object by id, validate and return the related user"
-        logger.debug('Session.fetch_user')
         guest = self.User.get(1)  # fetch_user('guest')
 
         # the user will either be identified by a pre-identified req.request.avatarId
@@ -32,7 +29,6 @@ class Session(object):
         nocred = False
         avatarId = getattr(req.request, 'avatarId',
                            None)  #req.request.avatarId
-        logger.debug('Session.fetch_user avatarId %s' % str(avatarId))
         if avatarId and avatarId != 'guest':
             user = self.User.fetch_user(
                 avatarId
@@ -49,7 +45,6 @@ class Session(object):
 
         # look for an existing session
         sessions = self.list(id=id, stage='')
-        logger.debug('Session.fetch_user existing sessions %d %s' % (len(sessions), id))
 
         if sessions:
             session = sessions[0]
@@ -89,7 +84,7 @@ class Session(object):
             if session.user != guest.uid and nocred:
 
                 # mirror the session id
-                req.set_cookie('mirror', session.id, max_age=60, path='/')
+                #req.set_cookie('mirror', session.id, max_age=60, path='/')
 
                 return self.User.get(session.user)
 
@@ -108,7 +103,6 @@ class Session(object):
             # Since sessions are created earlier when the session
             # cookie has been set this section should never
             # be reached.
-            logger.debug('we should not be here')
             session = self.new()
             session.id = id or uuid4().hex
             session.user = user.uid
@@ -132,7 +126,6 @@ class Session(object):
     @classmethod
     def Factory(self, site, id, reactor=None):
         """initialise EvokeSession object"""
-        logger.debug('Session.Factory id: ' + str(id, 'utf8'))
 
         id = str(id, 'utf8')
 
@@ -144,13 +137,11 @@ class Session(object):
         ob.site = site
         ob.id = id
         ob.shadow_id = id
-        logger.debug('Session.Factory preflush: %d %s %s'  % (ob.uid, ob.id, ob.shadow_id))
         ob.flush()
         ob._reactor = reactor
         ob.cache = {}
         self.expireCallbacks = []
         _ob = self.get(ob.uid)
-        logger.debug('Session.Factory end: %d %s %s'  % (_ob.uid, _ob.id, _ob.shadow_id))
         return ob
 
     @classmethod
@@ -162,7 +153,8 @@ class Session(object):
         self.list(sql=sql)
         session_data = self.list(stage='', asObjects=False)
         sessions = [self.get_session(i['uid']) for i in session_data]
-        return dict((str(i.id), i) for i in sessions)
+        res = dict((bytes(i.id, 'utf8'), i) for i in sessions)
+        return res
 
     @classmethod
     def get_session(self, uid, data={}, reactor=None):
@@ -186,7 +178,6 @@ class Session(object):
 
     def expire(self):
         """"""
-        logger.debug("Session.expire %s %s" % (str(self.id), str(self._site.sessions)))
         del self._site.sessions[bytes(self.id, 'utf8')]
         for c in self.expireCallbacks:
             c()
