@@ -91,6 +91,7 @@ class DB(object):
         dbc = MySQLconnect(*args, **kwargs)
         # override this method to give the required answer at all times!
         dbc.character_set_name = lambda: 'utf8'
+        dbc.ping(True)
         return dbc
 
 

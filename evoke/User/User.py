@@ -178,9 +178,11 @@ class User:
 
     def sorted_permit_items(self):
         "sorts Config.permits.items() so that master comes first"
-        return sorted(
-            list(self.Config.permits.items()),
-            (lambda x, y: (x[0] == 'master' or x < y) and -1 or 0))
+#        return sorted(
+#            list(self.Config.permits.items()),
+#            (lambda x, y: (x[0] == 'master' or x < y) and -1 or 0))
+
+        return sorted(list(self.Config.permits.items()), key=lambda x: x[0] != 'master' and x[0] or '' )  
 
     def create_permits(self):
         "creates permits"

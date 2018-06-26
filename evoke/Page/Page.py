@@ -395,17 +395,21 @@ class Page(Image, File):
     def set_descendant_lineage(self):
         """calculates, and flushes the lineage for all descendants
     """
-
+        print('HERE1')
         def get_tree(pob):
+            print('HEREx')
+
             children = pob.list(parent=pob.uid)
             for s in children:
                 if s.uid > 1:
                     s.set_lineage(pob)
-                    #        print ">>>> SET DESCENDANT LINEAGE AS",self.lineage
+                    print (">>>> SET DESCENDANT LINEAGE AS",self.lineage)
                     s.flush()
                     get_tree(s)
 
+        print('HERE2')
         get_tree(self)
+        print('HERE4')
 
     def clear_form(self, req):
         "blank the form variables"
@@ -1355,6 +1359,7 @@ class Page(Image, File):
             return self.import_form(req)
         # fetch the data
         try:
+            print("---------------->", len(req.filedata))
             data = pickle.loads(req.filedata)
         except:
             raise
