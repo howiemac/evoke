@@ -1340,7 +1340,7 @@ class Page(Image, File):
         branch = []
         for i in self.get_branch(expand=True):
             if i.stage != 'draft':  #exlude draft items ????????????????? DO WE WANT?NEED TO EXLUDE THEM ????
-                i.text = i.text.exported(req)  # expand the links in the text
+                #i.text = i.text.exported(req)  # expand the links in the text
                 branch.append(i)
         # export it all
         data.update(

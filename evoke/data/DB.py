@@ -50,16 +50,18 @@ class DB(object):
         "perform a query safely"
         dbc = self.conn_pool.get()
         db = dbc.cursor(DictCursor)
+        dbc.begin()
         try:
             db.execute(sql, args)
-        except OperationalError:
-            dbc = self.conn_pool.get()
-            db = dbc.cursor(DictCursor)
-            db.execute(sql, args)
+        except:
+            dbc.rollback()
+
+        dbc.commit()
 
         if 'INSERT' in sql.upper():
             # return the insert id
-            res = dbc.insert_id()
+            #res = dbc.insert_id()
+            res = db.lastrowid
         else:
             # return the result seT
             res = db.fetchall()
