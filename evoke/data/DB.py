@@ -50,16 +50,26 @@ class DB(object):
         "perform a query safely"
         dbc = self.conn_pool.get()
         db = dbc.cursor(DictCursor)
+        dbc.begin()
         try:
             db.execute(sql, args)
         except OperationalError:
             dbc = self.conn_pool.get()
             db = dbc.cursor(DictCursor)
-            db.execute(sql, args)
+            print(sql, args)
+            try:
+                db.execute(sql, args)
+            except OperationalError:
+                dbc.rollback()
+                raise
+        
+        dbc.commit()
 
         if 'INSERT' in sql.upper():
             # return the insert id
-            res = dbc.insert_id()
+            #res = dbc.insert_id()
+            res = db.lastrowid
+            print(res)
         else:
             # return the result seT
             res = db.fetchall()
@@ -91,6 +101,7 @@ class DB(object):
         dbc = MySQLconnect(*args, **kwargs)
         # override this method to give the required answer at all times!
         dbc.character_set_name = lambda: 'utf8'
+        dbc.ping(True)
         return dbc
 
 

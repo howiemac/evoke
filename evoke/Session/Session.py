@@ -34,6 +34,7 @@ class Session(object):
                 avatarId
             ) or guest  # fetch_user returns none if user not recognised
         elif '__user__' in req and '__pass__' in req:
+            print(req['__user__'], req['__pass__'])
             user = self.User.fetch_if_valid(
                 req['__user__'],
                 req['__pass__']) or guest  # returns guest if not valid
@@ -47,7 +48,7 @@ class Session(object):
         sessions = self.list(id=id, stage='')
 
         if sessions:
-            session = sessions[0]
+            session = sessions[-1]
 
             # if the session is new and empty, populate it.
             if not session.ip:
