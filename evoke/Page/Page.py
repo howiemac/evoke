@@ -395,17 +395,21 @@ class Page(Image, File):
     def set_descendant_lineage(self):
         """calculates, and flushes the lineage for all descendants
     """
-
+        print('HERE1')
         def get_tree(pob):
+            print('HEREx')
+
             children = pob.list(parent=pob.uid)
             for s in children:
                 if s.uid > 1:
                     s.set_lineage(pob)
-                    #        print ">>>> SET DESCENDANT LINEAGE AS",self.lineage
+                    print (">>>> SET DESCENDANT LINEAGE AS",self.lineage)
                     s.flush()
                     get_tree(s)
 
+        print('HERE2')
         get_tree(self)
+        print('HERE4')
 
     def clear_form(self, req):
         "blank the form variables"
@@ -1336,7 +1340,7 @@ class Page(Image, File):
         branch = []
         for i in self.get_branch(expand=True):
             if i.stage != 'draft':  #exlude draft items ????????????????? DO WE WANT?NEED TO EXLUDE THEM ????
-                i.text = i.text.exported(req)  # expand the links in the text
+                #i.text = i.text.exported(req)  # expand the links in the text
                 branch.append(i)
         # export it all
         data.update(
@@ -1355,6 +1359,7 @@ class Page(Image, File):
             return self.import_form(req)
         # fetch the data
         try:
+            print("---------------->", len(req.filedata))
             data = pickle.loads(req.filedata)
         except:
             raise

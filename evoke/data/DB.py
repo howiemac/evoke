@@ -63,13 +63,15 @@ class DB(object):
                 dbc.rollback()
                 raise
         
+        except:
+            dbc.rollback()
+
         dbc.commit()
 
         if 'INSERT' in sql.upper():
             # return the insert id
             #res = dbc.insert_id()
             res = db.lastrowid
-            print(res)
         else:
             # return the result seT
             res = db.fetchall()
