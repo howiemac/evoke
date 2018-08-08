@@ -37,7 +37,7 @@ class Page(Schema):
     kind = TAG, KEY
     stage = TAG, 'live', KEY
     when = DATE, now
-    text = TEXT, KEY
+    text = TEXT #, KEY
     seq = INT, KEY
     rating = INT
     score = INT

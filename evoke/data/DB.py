@@ -53,6 +53,16 @@ class DB(object):
         dbc.begin()
         try:
             db.execute(sql, args)
+        except OperationalError:
+            dbc = self.conn_pool.get()
+            db = dbc.cursor(DictCursor)
+            print(sql, args)
+            try:
+                db.execute(sql, args)
+            except OperationalError:
+                dbc.rollback()
+                raise
+        
         except:
             dbc.rollback()
 

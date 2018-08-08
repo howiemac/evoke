@@ -51,6 +51,7 @@ class User:
         #salt, hash = hashed[:19], hashed[19:]
         hash, salt = hashed.split(':')
         res = self.hashed(pw, salt) == hashed
+        print("**", res)
         return res
 
     @classmethod
@@ -70,7 +71,7 @@ class User:
         "authenticate password and id - return validated user instance"
         if id:
             user = cls.fetch_user(id)
-            #      print "VERIFIED",user.id,user.pw,id,pw, " mode:",getattr(user,'mode','NO MODE')
+            print("VERIFIED",user.id,user.pw,id,pw, " mode:",getattr(user,'mode','NO MODE'))
             if user and user.check_password(pw) and (user.stage == 'verified'):
                 return user  #valid
         return None  #invalid
@@ -233,9 +234,10 @@ class User:
         return user
 
     def login_failure(self, req):
-        "checks login form entries for validity - this is called only for guest user, sometime after validate_user().."
+        "checks login form entries for validity - this is called only for guest user, sometimes after validate_user().."
         if '__user__' in req:  #we must have logged in and failed login validation to get here
             user = self.fetch_user(req.__user__)
+
             if user and not user.stage:
                 req.error = 'registration for "%s" has not yet been verified' % req.__user__
             else:  # CJH: not good practice to distinguish which of  username and password is valid, so....
