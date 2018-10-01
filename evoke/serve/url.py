@@ -29,6 +29,8 @@ class Url:
             return u
         except:
             return self.classurl(method)
+    
+    _url = url  # because url is an obvious field name
 
     @classmethod
     def class_url(self, method, **atts):
