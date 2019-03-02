@@ -418,7 +418,7 @@ Welcome to %s.
 
     def verification_key(self):
         ""
-        return encode("%s,%s,%s" % (self.uid, self.id, self.pw))
+        return encode(bytes("%s,%s,%s" % (self.uid, self.id, self.pw), 'utf8'))
 
     # TODO - password reset mechanism
     def reminder(self, req):

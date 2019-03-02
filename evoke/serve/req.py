@@ -44,6 +44,8 @@ class Req(DefaultMunch):
     """ extend the dict object with our own extra methods
     """
     __default__ = ''
+    def __init__(self, *a, **k):
+        DefaultMunch.__init__(self, '', {})
 
     def redirect(self, url, permanent=False, anchor=""):
         """Cause a redirection without raising an error 
