@@ -215,9 +215,11 @@ class Image(object):
             try:
                 self.make_thumb()
             except ImageError:
-                raise
+                #raise
                 print("**** CANNOT THUMBNAIL:", self.file_loc())
                 return self.file_url()
+            except:
+                return ''
         return '/site/data/%s/%s' % (self.thumb_folder(), self.thumb_name())
 
     def thumb_loc(self):

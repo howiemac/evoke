@@ -2,7 +2,7 @@
 Page_header.evo
 # content ###################################################################### 
 div: id="content", cls="%s_content" % self.kind
- form: action=self.url("import_eve"), enctype="multipart/form-data" 
+ form: action=self.url("import_eve"), enctype="multipart/form-data", method="POST"
   dl:
    dt:
     label:'import file', for_id="import_file",
