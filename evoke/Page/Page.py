@@ -15,6 +15,7 @@ from os.path import lexists, dirname
 from datetime import timedelta, datetime
 import pickle as pickle
 from io import StringIO
+import re
 
 # try to import PyRSS2Gen gracefully
 try:
@@ -753,7 +754,7 @@ class Page(Image, File):
 #       self.add_option(req,'import','import_eve')
 
 # remove single tabs
-        if len(req.pageoptions) == 1:
+        if len(req.pageoptions or '') == 1:
             req.pageoptions = []
         # pass back the result
         return req.pageoptions
@@ -1346,6 +1347,10 @@ class Page(Image, File):
         data.update(
             branch=[b.for_export(extras=['data']) for b in branch], )
         req.request.setHeader('content-type', 'application/octet-stream')
+        # TODO - alphanumeric-only filename in disposition
+        rx = re.compile('[\W_]+')
+        name = rx.sub('', self.name)
+        req.request.setHeader('content-disposition', 'attachment; filename=%s-%d-%s.eve' % (self.Config.domain, self.uid, name))
         return pickle.dumps(
             data,
             pickle.HIGHEST_PROTOCOL)  #pickle using highest protocol (binary)
@@ -1385,7 +1390,7 @@ class Page(Image, File):
                 if i.parent == ob.uid:
                     i.parent = nob.uid
             ob.uid = nob.uid
-            if hasattr(ob, 'data'):  # store file data
+            if getattr(ob, 'data', None):  # store file data
                 if ob.kind == 'image':
                     ob.code = '%s.%s' % (ob.uid, ob.code.split(".")[-1]
                                          )  # rename image files to use new uid

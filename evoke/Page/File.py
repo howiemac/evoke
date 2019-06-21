@@ -108,7 +108,10 @@ class File(object):
             for folder in folders.split('/'):
                 d = "%s/%s" % (d, folder)  #append folder
                 os.chmod(d, 0o2777)
-            f = open(fp, 'wb')
+            try:    
+                f = open(fp, 'wb')
+            except:
+                print(self, datapath, folders, name, self.code)
         os.chmod(fp, 0o2664)
         f.write(content)
 
