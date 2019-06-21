@@ -1462,6 +1462,11 @@ class Page(Image, File):
                 return cls.get(move)
         return None
 
+    def setstage(self, stage):
+        "convenience function to set stage"
+        self.stage = stage
+        self.flush()
+  
 ##### shortcuts
 
     def login(self, req):

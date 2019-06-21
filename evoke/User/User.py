@@ -31,6 +31,8 @@ from base64 import urlsafe_b64encode as encode, urlsafe_b64decode as decode
 from evoke import lib
 from nevo import NevoDecorator
 import evoke
+import gettext
+
 html = NevoDecorator.make('User', ['.', dirname(evoke.__file__)])
 
 class User:
@@ -265,26 +267,27 @@ class User:
 
     def register(self, req):
         "create new user record"
+        _ = req.user.getLang(req)
         if self.Config.registration_method == 'admin':  # registration by admin only
             if not req.user.can('edit user'):
                 return self.error(
-                    req, 'access denied - registration must be done by admin')
+                    req, _('access denied - registration must be done by admin'))
         if 'pass2' in req:  #form must have been submitted, so process it
             uob = self.fetch_user(req.username)
             eob = self.fetch_user_by_email(req.email)
             retry = (req.redo == req.username) and uob and (not uob.stage)
             if not req.username:
-                req.error = 'please enter a username'
+                req.error = _('please enter a username')
             elif uob and not retry:
-                req.error = 'username "%s" is taken, please try another' % req.username
+                req.error = _('username "%s" is taken, please try another') % req.username
             elif not re.match('.*@.*', req.email):
-                req.error = 'please enter a valid email address'
+                req.error = _('please enter a valid email address')
             elif eob and ((not retry) or (eob.uid != uob.uid)):
-                req.error = 'you already have a login for this email address'
+                req.error = _('you already have a login for this email address')
             elif not req.pass1:
-                req.error = 'please enter a password'
+                req.error = _('please enter a password')
             elif req.pass2 != req.pass1:
-                req.error = 'passwords do not match - please re-enter'
+                req.error = _('passwords do not match - please re-enter')
             else:  #must be fine
                 uob = uob or self.new()
                 uob.id = req.username
@@ -368,6 +371,7 @@ Welcome to %s.
 
     def verify(cls, req):
         "called from registration email to complete the registration process"
+        _ = req.user.getLang(req)
         try:
             #check key
             # prepare key - need to strip whitespace and make sure the length
@@ -394,12 +398,12 @@ Welcome to %s.
                     return req.redirect(
                         self.url(
                             "view?message=%s" %
-                            lib.url_safe('your registration has been verified')
+                            lib.url_safe(_('your registration has been verified'))
                         ))  #use redirect to force clean new login
                 else:
                     return req.redirect(
                         self.url("view?message=%s" % lib.url_safe(
-                            'registration of "%s" has been verified' % id)))
+                            _('registration of "%s" has been verified') % id)))
         except:
             raise
         return self.error('verification failure')
@@ -424,19 +428,20 @@ Welcome to %s.
     def reminder(self, req):
         "send password reminder email"
         return ''
+        _ = req.user.getLang(req)
 
         #self.logout(req)
         #    print "User.reminder"
         if 'id' in req or 'email' in req:  #form must have been submitted, so process it
             # User.reminder req has id or email
             if not (req.id or req.email):
-                req.error = 'please enter a registered username or email address'
+                req.error = _('please enter a registered username or email address')
             else:
                 user = self.fetch_user(req.id) or self.fetch_user_by_email(
                     req.email)
                 #        print "User.reminder user=", user, user.uid, user.email
                 if not user:
-                    req.error = '%s is not registered' % (
+                    req.error = _('%s is not registered') % (
                         req.id and "username" or "email address", )
                 else:  #must be fine!
                     user.send_email('%s password reminder' % user.id,
@@ -461,13 +466,13 @@ Welcome to %s.
                 del req["pw"]
             if self.Config.user_email_required and not re.match(
                     '.*@.*', req.email):
-                req.error = 'please enter a valid email address'
+                req.error = _('please enter a valid email address')
             elif self.Config.user_email_required and (
                     self.email !=
                     req.email) and self.fetch_user_by_email(req.email):
-                req.error = 'you already have a login for this email address'
+                req.error = _('you already have a login for this email address')
             elif req.pass2 != req.pass1:
-                req.error = 'passwords do not match - please re-enter'
+                req.error = _('passwords do not match - please re-enter')
             else:  #must be fine!
                 if (self.uid > 2) and req.user.can(
                         'edit user'
@@ -484,7 +489,7 @@ Welcome to %s.
                 if req.pass1:
                     self.pw = self.hashed(req.pass1)
                 self.store(req)
-                req.message = 'details updated for "%s"' % self.id
+                req.message = _('details updated for "%s"') % self.id
                 #following not needed for session-based login
                 ##        if self.uid==req.user.uid:
                 #          if self.pw!=req.user.pw:#user is altering own details, so fix the login
@@ -590,3 +595,75 @@ Welcome to %s.
     @html
     def edit_form(self, req):
         pass
+
+    #### Language Support
+    def parseAcceptLanguage(self, acceptLanguage):
+        """ lifted from https://siongui.github.io/2012/10/11/python-parse-accept-language-in-http-request-header/ """
+        languages = acceptLanguage.split(",")
+        locale_q_pairs = []
+
+        for language in languages:
+            if language.split(";")[0] == language:
+                # no q => q = 1
+                locale_q_pairs.append((language.strip(), "1"))
+            else:
+                locale = language.split(";")[0].strip()
+                q = language.split(";")[1].split("=")[1]
+                locale_q_pairs.append((locale, q))
+
+        return locale_q_pairs
+
+    def preferred_language(self, req):
+        """return country code of preferred language"""
+        # explicit parameter
+        if 'lang' in req and req['lang'].upper() in self.Config.languages:
+            return req.lang.upper()
+
+        # im_lang cookie
+        if 'lang' in req.cookies:
+            return req.cookies['lang']
+
+        # browser preference
+        accept_lang = req.request.getAllHeaders().get('accept-language', '')
+        if not accept_lang:
+            return ''
+
+        # get list of (language code, priority)
+        accepted = self.parseAcceptLanguage(accept_lang)
+        for code, priority in accepted:
+            # strip out qualifiers eg.  en-GB -> en
+            code = code.split('-', 1)[0].upper()
+            if code in self.Config.languages:
+                return code
+
+        # no match
+        return ''
+
+    def getLang(self, inner_self, req):
+        "return gettext language object"
+        if hasattr(req.user, 'preferred_language'):
+            code = req.user.preferred_language(req)
+        else:    
+            code = req.cookies.get('lang', '')
+        if code:
+            try:
+                trans_domain = inner_self.Config.appname
+                trans_path = os.path.join(inner_self.Config.app_fullpath,
+                                          'trans')
+                lang = gettext.translation(
+                    trans_domain, trans_path, languages=[code])
+
+            except:
+                # fallback on plain, no-op gettext
+                lang = gettext
+            try:    
+                return lang.gettext
+            except AttributeError:
+                return lang
+        else:
+            #      print "no language specified"
+            #return gettext.gettext
+            try:
+                return gettext.gettext
+            except AttributeError:
+                return gettext

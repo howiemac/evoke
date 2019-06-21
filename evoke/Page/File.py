@@ -90,7 +90,7 @@ class File(object):
             f = open(fp, 'rb')
             return f.read()
         except:
-            return ''
+            return b''
 
     def save_file(self, content, folder="", name=''):
         "save actual file in filesystem - generic, used also for images"

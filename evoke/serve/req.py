@@ -63,11 +63,11 @@ class Req(DefaultMunch):
 #    print "REDIRECT full url:",url or "no url", " == anchor: ", anchor or "no anchor"
         if '#' in url:
             url, anchor = url.rsplit('#', 1)
-        ats = self.error and ['error=%s' % quote(self.error)] or []
+        ats = self.error and ['error=%s' % (self.error)] or []
         if self.warning:
-            ats.append('warning=%s' % quote(self.warning))
+            ats.append('warning=%s' % (self.warning))
         if self.message:
-            ats.append('message=%s' % quote(self.message))
+            ats.append('message=%s' % (self.message))
         q = url.find('?') > -1 and "&" or "?"
         ats = ats and (q + '&'.join(ats)) or ""
         url = '%s%s%s%s' % (url, ats, anchor and '#' or '', anchor)
