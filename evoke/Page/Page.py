@@ -745,7 +745,7 @@ class Page(Image, File):
             if req.user.can('admin page'):
                 self.add_option(
                     req,
-                    'move/copy',
+                    'move / copy',
                     'move',
                     hint='mark for moving or copying')
 # temporarily disable Export/Imprt until it can be fully tested... (IHM Dec 2015)
@@ -827,7 +827,7 @@ class Page(Image, File):
             if req.user.can('admin page'):
                 self.add_act(
                     req,
-                    'move/copy',
+                    'move / copy',
                     'move',
                     hint='mark for moving or copying')
 # temrarily disable Export/Imprt until it can be fully tested... (IHM Dec 2015)

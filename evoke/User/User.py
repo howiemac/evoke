@@ -639,7 +639,7 @@ Welcome to %s.
         # no match
         return ''
 
-    def getLang(self, inner_self, req):
+    def getLang(self, req):
         "return gettext language object"
         if hasattr(req.user, 'preferred_language'):
             code = req.user.preferred_language(req)
@@ -647,8 +647,8 @@ Welcome to %s.
             code = req.cookies.get('lang', '')
         if code:
             try:
-                trans_domain = inner_self.Config.appname
-                trans_path = os.path.join(inner_self.Config.app_fullpath,
+                trans_domain = self.Config.appname
+                trans_path = os.path.join(self.Config.app_fullpath,
                                           'trans')
                 lang = gettext.translation(
                     trans_domain, trans_path, languages=[code])
