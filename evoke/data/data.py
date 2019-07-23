@@ -76,6 +76,11 @@ class SQLDataObject(DataObject):
             value = self._v_schema[name](
                 value
             )  #create an instance of the relevant type, thus processing value where required
+
+            # include reference back to self
+            # initially so we can create a back reference to TEXT objects
+            # so they can be identified at translation time
+            value._v_instance = self
 #      print "  TO:",value
         DataObject.__setattr__(self, name, value)
 

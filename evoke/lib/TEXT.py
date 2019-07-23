@@ -89,27 +89,5 @@ class TEXT(STR):
         text = self.image_rule.sub(subimage, text)
         text = self.table_rule.sub(subtable, text)
 
-        return markdown(text, req)
-#        return markdown(text, req).replace("<blockquote>","<blockquote class='blockquote'>") # doesn't style properly...
-
-
-
-#    def to_markdown(self, req):
-#        """Render to html using formatter, then use html2text to convert to Markdown"""
-#        html = self.formatted(req).replace('<q>','&ldquo;').replace('</q>','&rdquo;')
-#        md = html2text(html)
-#
-#        # convert links to [url caption] rather than [caption](url)
-#        linkfix_rule = re.compile(r'(\[)(.*?)(\]\()(.*?)(\))')
-#
-#        def sublinkfix(match):
-#            ""
-#            caption = match.groups()[1].strip()
-#            url = match.groups()[3].strip()
-#            if url.startswith('/') and INT(url[1:]):
-#              url=url[1:]
-#            return '[%s %s]' % (url,caption)
-#
-#        text = linkfix_rule.sub(sublinkfix, md)
-#        return text
-
+        res = markdown(text, req)
+        return "<span class='evo-text-%d'>%s</span>" % (self._v_instance.uid, res)
