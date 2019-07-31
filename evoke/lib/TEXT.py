@@ -90,4 +90,7 @@ class TEXT(STR):
         text = self.table_rule.sub(subtable, text)
 
         res = markdown(text, req)
-        return "<span class='evo-text-%d'>%s</span>" % (self._v_instance.uid, res)
+        if getattr(self, '_v_instance', ''):
+            return "<span class='evo-text-%d'>%s</span>" % (self._v_instance.uid, res)
+        else:
+            return res
